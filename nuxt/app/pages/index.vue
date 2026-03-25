@@ -107,8 +107,9 @@ const clearFilters = () => {
                 <div class="bg-white p-4 rounded-t-lg border-x border-t border-gray-200 flex flex-wrap gap-4 items-end">
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-semibold text-gray-500 uppercase">ID</label>
-                        <input 
-                            v-model="filters.id" 
+                        <input
+                            v-model="filters.id"
+                            @keyup.enter="applyFilters"
                             type="number" 
                             placeholder="Ex: 123"
                             class="h-9 px-3 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-brand focus:outline-none w-24"
@@ -118,7 +119,8 @@ const clearFilters = () => {
                     <div class="flex flex-col gap-1 flex-1 min-w-[200px]">
                         <label class="text-xs font-semibold text-gray-500 uppercase">Nome</label>
                         <input 
-                            v-model="filters.name" 
+                            v-model="filters.name"
+                            @keyup.enter="applyFilters"
                             type="text" 
                             placeholder="Buscar por nome..."
                             class="h-9 px-3 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-brand focus:outline-none"
@@ -128,7 +130,8 @@ const clearFilters = () => {
                     <div class="flex flex-col gap-1 flex-1 min-w-[200px]">
                         <label class="text-xs font-semibold text-gray-500 uppercase">E-mail</label>
                         <input 
-                            v-model="filters.email" 
+                            v-model="filters.email"
+                            @keyup.enter="applyFilters"
                             type="email" 
                             placeholder="email@exemplo.com"
                             class="h-9 px-3 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-brand focus:outline-none"
@@ -138,7 +141,8 @@ const clearFilters = () => {
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-semibold text-gray-500 uppercase">Cadastro</label>
                         <input 
-                            v-model="filters.date" 
+                            v-model="filters.date"
+                            @keyup.enter="applyFilters"
                             type="date" 
                             class="h-9 px-3 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-brand focus:outline-none"
                         >
