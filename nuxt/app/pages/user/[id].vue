@@ -21,10 +21,10 @@ function getInitialsName(name) {
     <div class="bg-surface text-txt antialiased">
         <div class="min-h-screen px-4 py-12">
             <div class="mx-auto max-w-md space-y-6">
-            <NuxtLink to="/" class="inline-flex items-center gap-1 text-sm text-txt-muted hover:text-txt transition-colors active:scale-95">
+            <button @click="$router.back()" class="inline-flex items-center gap-1 text-sm text-txt-muted hover:text-txt transition-colors active:scale-95">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
                 Voltar
-            </NuxtLink>
+            </button>
 
             <div v-if="status == 'pending'" class="rounded-2xl border border-border-soft bg-surface-card p-8 shadow-sm space-y-6">
                 Carregando...
@@ -34,7 +34,7 @@ function getInitialsName(name) {
                 {{ error.statusText }}
             </div>
 
-            <div v-if="status == 'success'" class="rounded-2xl border border-border-soft bg-surface-card p-8 shadow-sm space-y-6">
+            <div v-if="user?.data" class="rounded-2xl border border-border-soft bg-surface-card p-8 shadow-sm space-y-6">
                 <div class="flex flex-col items-center gap-3">
                 <div class="flex h-16 w-16 items-center justify-center rounded-full bg-brand-light text-brand-dark text-xl font-semibold">
                     {{ getInitialsName(user?.data.name) }}

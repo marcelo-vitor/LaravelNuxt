@@ -7,6 +7,8 @@ definePageMeta({
 import { useAuthStore } from '~/stores/auth'
 
 const auth = useAuthStore();
+const router = useRouter();
+const route = useRoute();
 
 async function handleLogout() {
     try {
@@ -16,14 +18,22 @@ async function handleLogout() {
     }
 }
 
-const { data:users, status } = await useLazySanctumFetch('/api/users');
+const { data:users, status } = await useLazySanctumFetch('/api/users', {
+    query: {...route.query}
+});
 
-const currentPage = ref(1);
+const currentPage = ref(route.query.page ?? 1);
 
 async function goToPage(page) {
     currentPage.value = page;
     status.value = 'pending';
     users.value = {};
+    router.replace({
+        query: {
+            ...route.query,
+            page
+        }
+    });
 
     await useLazySanctumFetch(`/api/users?page=${page}`).then(res => {
         users.value = res.data.value;
@@ -31,11 +41,42 @@ async function goToPage(page) {
     });
 }
 
-watch(currentPage, (page) => {
-    if (page !== users?.meta?.current_page) {
-        goToPage(page);
-    }
+const filters = ref({
+    id: route.query.id ?? '',
+    name: route.query.name ?? '',
+    email: route.query.email ?? '',
+    created_at: route.query.created_at ?? ''
 });
+
+const applyFilters = async () => {
+    currentPage.value = 1;
+    status.value = 'pending';
+    users.value = {};
+
+    let cleanFilters = Object.fromEntries(
+        Object.entries(filters.value).filter(([i, v]) => v != null && v !== '')
+    );
+
+    router.replace({
+        query: {
+            ...cleanFilters
+        }
+    });
+
+    await useLazySanctumFetch(`/api/users`, {
+        query: {
+            ...cleanFilters
+        }
+    }).then(res => {
+        users.value = res.data.value;
+        status.value = res.status.value;
+    });
+};
+
+const clearFilters = () => {
+    filters.value = { id: '', name: '', email: '', created_at: '' };
+    applyFilters();
+};
 
 </script>
 
@@ -60,6 +101,63 @@ watch(currentPage, (page) => {
                     <h1 class="text-xl font-semibold tracking-tight">Usuários</h1>
                     <p v-if="status == 'pending'" class="text-sm text-txt-muted">Carregando...</p>
                     <p v-else-if="status == 'success'" class="text-sm text-txt-muted"> {{ users.meta.total }} Usuários</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-t-lg border-x border-t border-gray-200 flex flex-wrap gap-4 items-end">
+                    <div class="flex flex-col gap-1">
+                        <label class="text-xs font-semibold text-gray-500 uppercase">ID</label>
+                        <input 
+                            v-model="filters.id" 
+                            type="number" 
+                            placeholder="Ex: 123"
+                            class="h-9 px-3 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-brand focus:outline-none w-24"
+                        >
+                    </div>
+
+                    <div class="flex flex-col gap-1 flex-1 min-w-[200px]">
+                        <label class="text-xs font-semibold text-gray-500 uppercase">Nome</label>
+                        <input 
+                            v-model="filters.name" 
+                            type="text" 
+                            placeholder="Buscar por nome..."
+                            class="h-9 px-3 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-brand focus:outline-none"
+                        >
+                    </div>
+
+                    <div class="flex flex-col gap-1 flex-1 min-w-[200px]">
+                        <label class="text-xs font-semibold text-gray-500 uppercase">E-mail</label>
+                        <input 
+                            v-model="filters.email" 
+                            type="email" 
+                            placeholder="email@exemplo.com"
+                            class="h-9 px-3 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-brand focus:outline-none"
+                        >
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <label class="text-xs font-semibold text-gray-500 uppercase">Cadastro</label>
+                        <input 
+                            v-model="filters.date" 
+                            type="date" 
+                            class="h-9 px-3 rounded-md border border-gray-300 text-sm focus:ring-2 focus:ring-brand focus:outline-none"
+                        >
+                    </div>
+
+                    <div class="flex gap-2 w-full justify-center">
+                        <button 
+                            @click="applyFilters"
+                            class="h-9 px-4 bg-brand text-white rounded-md text-sm font-medium hover:bg-brand-dark transition-all active:scale-95 flex items-center gap-2"
+                        >
+                            <span>Filtrar</span>
+                        </button>
+                        
+                        <button 
+                            @click="clearFilters"
+                            class="h-9 px-4 bg-gray-100 text-gray-600 rounded-md text-sm font-medium hover:bg-gray-200 transition-all"
+                        >
+                            Limpar
+                        </button>
                     </div>
                 </div>
 
@@ -96,7 +194,7 @@ watch(currentPage, (page) => {
                         class="flex justify-center items-center gap-2 px-4 py-3 border-t border-border-soft bg-surface-card"
                     >
                         <button
-                            :disabled="currentPage === 1"
+                            :disabled="currentPage == 1"
                             @click="goToPage(currentPage - 1)"
                             class="h-8 w-8 rounded-md flex items-center justify-center text-txt-muted hover:bg-brand-light transition-colors disabled:opacity-50 disabled:pointer-events-none"
                         >
@@ -107,7 +205,7 @@ watch(currentPage, (page) => {
                                 @click="goToPage(page)"
                                 :class="[
                                     'min-w-[32px] h-8 px-2 rounded-md text-sm flex items-center justify-center transition-all',
-                                    currentPage === page
+                                    currentPage == page
                                         ? 'bg-brand text-white font-medium scale-105'
                                         : 'bg-transparent text-txt hover:bg-brand-light'
                                 ]"
@@ -116,7 +214,7 @@ watch(currentPage, (page) => {
                             </button>
                         </template>
                         <button
-                            :disabled="currentPage === users.meta.last_page"
+                            :disabled="currentPage == users.meta.last_page"
                             @click="goToPage(currentPage + 1)"
                             class="h-8 w-8 rounded-md flex items-center justify-center text-txt-muted hover:bg-brand-light transition-colors disabled:opacity-50 disabled:pointer-events-none"
                         >
