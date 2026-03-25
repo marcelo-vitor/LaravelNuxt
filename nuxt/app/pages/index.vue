@@ -87,7 +87,7 @@ const clearFilters = () => {
                 <div class="flex items-center justify-between mb-4 p-4 bg-surface-card rounded-lg border border-border-soft shadow-sm">
                     <div class="flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="text-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M5.5 21v-2A4.5 4.5 0 0 1 10 14.5h4A4.5 4.5 0 0 1 18.5 19v2"/></svg>
-                        <span class="text-base font-medium" v-if="auth.loading">⏳</span>
+                        <span class="text-base font-medium" v-if="auth.loading">Deslogando...</span>
                         <span class="text-base font-medium" v-else-if="auth.user">{{ auth.user.data.name }}</span>
                     </div>
                     <button @click="handleLogout" class="h-9 px-4 rounded-md bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors active:scale-95">Sair</button>
