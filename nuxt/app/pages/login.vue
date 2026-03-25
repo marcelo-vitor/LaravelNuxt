@@ -1,3 +1,31 @@
+<script setup lang="ts">
+
+definePageMeta({
+    middleware: 'guest'
+});
+
+const email = ref('branson.quigley@example.net');
+const password = ref('password');
+const error = ref('');
+
+const auth = useAuthStore();
+
+async function handleLogin() {
+    error.value = '';
+
+    try {
+        await auth.signIn({
+            email: email.value,
+            password: password.value
+        });
+
+        await navigateTo('/');
+    } catch (e) {
+        error.value = 'Credenciais inválidas';
+    }
+}
+</script>
+
 <template>
     <div class="bg-surface text-txt antialiased">
         <div class="flex min-h-screen items-center justify-center px-4">
@@ -10,16 +38,20 @@
                 <p class="text-sm text-txt-muted">Acesse sua conta para continuar</p>
             </div>
 
+            <p v-if="error" class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {{ error }}
+            </p>
+
             <form class="space-y-5 rounded-2xl border border-border-soft bg-surface-card p-6 shadow-sm">
                 <div class="space-y-2">
                 <label for="email" class="text-sm font-medium">E-mail</label>
-                <input id="email" type="email" placeholder="seu@email.com" class="flex h-10 w-full rounded-md border border-border-soft bg-surface px-3 py-2 text-sm placeholder:text-txt-muted focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2" />
+                <input v-model="email" placeholder="seu@email.com" class="flex h-10 w-full rounded-md border border-border-soft bg-surface px-3 py-2 text-sm placeholder:text-txt-muted focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2" />
                 </div>
                 <div class="space-y-2">
                 <label for="password" class="text-sm font-medium">Senha</label>
-                <input id="password" type="password" placeholder="••••••••" class="flex h-10 w-full rounded-md border border-border-soft bg-surface px-3 py-2 text-sm placeholder:text-txt-muted focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2" />
+                <input v-model="password" type="password" placeholder="••••••••" class="flex h-10 w-full rounded-md border border-border-soft bg-surface px-3 py-2 text-sm placeholder:text-txt-muted focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2" />
                 </div>
-                <button type="submit" class="w-full h-10 rounded-md bg-brand text-white text-sm font-medium hover:bg-brand/90 active:scale-[0.97] transition-transform">Entrar</button>
+                <button @click.prevent="handleLogin" class="w-full h-10 rounded-md bg-brand text-white text-sm font-medium hover:bg-brand/90 active:scale-[0.97] transition-transform">Entrar</button>
             </form>
 
             <p class="text-center text-sm text-txt-muted">
@@ -29,6 +61,3 @@
         </div>
     </div>
 </template>
-
-<script setup>
-</script>
